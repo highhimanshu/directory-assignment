@@ -9,9 +9,9 @@ const useApi = (url, flag) => {
     setError(null);
     setIsLoading(true);
     try {
-      setIsLoading(false);
       const response = await fetch(url);
       const result = await response.json();
+      setIsLoading(false);
       setData(result);
     } catch (error) {
       setIsLoading(false);

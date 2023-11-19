@@ -33,12 +33,14 @@ const DirectoryDetails = () => {
       {isLoading && <p>Loading...</p>}
       {postCount &&
         postCount?.map(({ userId, count }) => (
-          <Link to={`/${userId}`}>
-            <div key={userId} className="main__container">
-              <h2>Name : {userId} </h2>
-              <h2>Posts: {count} </h2>
-            </div>
-          </Link>
+          <div key={userId}>
+            <Link to={`/${userId}`} style={{ textDecoration: "none" }}>
+              <div className="directory__container">
+                <h2>Name : {userId} </h2>
+                <h2>Posts: {count} </h2>
+              </div>
+            </Link>
+          </div>
         ))}
     </div>
   );

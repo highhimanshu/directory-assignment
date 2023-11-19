@@ -7,34 +7,33 @@ import {
 } from "../../utils/constants";
 import useApi from "../../hooks/useApi";
 import { useNavigate, useParams } from "react-router-dom";
+import Modal from "../../Component/Modal/Modal.jsx";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [selected, setSelected] = useState("");
-  const [currentTime, setCurrentTime] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [clickedId, setClickedId] = useState("");
 
   const {
     data: userDetails,
-    isLoading,
+    isLoading: userDetailLoading,
     error,
   } = useApi(`${USER_DETAIL_URL}/${id}`);
-
-  const { data: allPost } = useApi(`${USER_POSTS_URL}?userId=${id}`);
+  const { data: allPost, isLoading: loadingPost } = useApi(
+    `${USER_POSTS_URL}?userId=${id}`
+  );
+  const handleSelect = (e) => {
+    setSelected(e.target.value);
+  };
   const { data: countryList } = useApi(COUNTRY_API, selected);
   const { data: time } = useApi(`${COUNTRY_API}/${selected}`, selected);
 
-  const handleSelect = (e) => {
-    const val = e.target.value;
-    setSelected(val);
-    setCurrentTime(time);
-  };
-
   return (
-    <div>
+    <div style={{ position: "relative" }}>
       <div className="profile__heading">
         <button onClick={() => navigate(-1)}>Back</button>
-
         <div style={{ display: "flex", gap: "5px" }}>
           <div>
             <select onChange={handleSelect}>
@@ -47,9 +46,9 @@ const ProfilePage = () => {
           </div>
           <div>
             <span>
-              {currentTime === null || currentTime === undefined
-                ? "00:00:00"
-                : currentTime?.datetime?.substring(11, 19)}
+              {Object.keys(time).length > 0
+                ? time?.datetime?.substring(11, 19)
+                : "00:00:00"}
             </span>
             <button>Pause/Start</button>
           </div>
@@ -59,6 +58,7 @@ const ProfilePage = () => {
       <h2>Profile Page</h2>
 
       <div className="profile__wrapper">
+        {userDetailLoading && <h2>User Details Loading...</h2>}
         <div>
           <p>{userDetails?.name}</p>
           <p>
@@ -74,14 +74,23 @@ const ProfilePage = () => {
       </div>
 
       <div className="post__container">
+        {loadingPost && <h2>Posts Loading...</h2>}
         {allPost &&
           allPost?.map((post) => (
-            <div key={post?.id} className="singlepost__container">
+            <div
+              key={post?.id}
+              className="singlepost__container"
+              onClick={() => {
+                setClickedId(post?.id);
+                setShowModal(true);
+              }}
+            >
               <h2>{post?.title}</h2>
               <p>{post?.body}</p>
             </div>
           ))}
       </div>
+      {showModal && <Modal setShowModal={setShowModal} clickedId={clickedId} />}
     </div>
   );
 };
